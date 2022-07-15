@@ -1,20 +1,18 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.7;
 
-import "contracts/lib/ConsiderationConstants.sol";
-
 import {
     IERC20,
     IERC721,
     IERC1155
-} from "contracts/interfaces/AbridgedTokenInterfaces.sol";
+} from "../src/interfaces/AbridgedTokenInterfaces.sol";
 
 import {
     TokenTransferrerErrors
-} from "contracts/interfaces/TokenTransferrerErrors.sol";
+} from "../src/interfaces/TokenTransferrerErrors.sol";
 
 // credit @ Seaport
-contract TokenTransferrer is TokenTransferrerErrors, TokenReceiver {
+contract TokenTransferrer is TokenTransferrerErrors {
     /**
      * @dev Internal function to transfer ERC20 tokens from a given originator
      *      to a given recipient. Sufficient approvals must be set on the
@@ -37,7 +35,7 @@ contract TokenTransferrer is TokenTransferrerErrors, TokenReceiver {
 
         (bool ok, bytes memory data) = token.call(
             abi.encodeWithSelector(
-                ERC20Interface.transferFrom.selector,
+                IERC20.transferFrom.selector,
                 from,
                 to,
                 amount
@@ -81,7 +79,7 @@ contract TokenTransferrer is TokenTransferrerErrors, TokenReceiver {
             revert NoContract(token);
         }
 
-        ERC721Interface(token).transferFrom(from, to, id);
+        IERC721(token).transferFrom(from, to, id);
     }
 
     /**
@@ -108,7 +106,7 @@ contract TokenTransferrer is TokenTransferrerErrors, TokenReceiver {
             revert NoContract(token);
         }
 
-        ERC1155Interface(token).safeTransferFrom(
+        IERC1155(token).safeTransferFrom(
             from,
             to,
             id,
