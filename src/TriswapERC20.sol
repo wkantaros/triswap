@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.7;
 
-import { IUniswapV2ERC20 } from "./interfaces/IUniswapV2ERC20.sol";
+import { ERC20 } from "solmate/"
 
-contract UniswapV2ERC20 is IUniswapV2ERC20 {
+contract TriswapERC20 is IUniswapV2ERC20 {
 
     string public constant name = "Triswap";
     string public constant symbol = "TRI";
