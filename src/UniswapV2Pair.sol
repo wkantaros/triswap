@@ -3,8 +3,8 @@ pragma solidity ^0.8.7;
 
 import { IUniswapV2Pair } from './interfaces/IUniswapV2Pair.sol';
 import { UniswapV2ERC20 } from './UniswapV2ERC20.sol';
-import { Math } from 'lib/Math.sol';
-import { UQ112x112 } from 'lib/UQ112x112.sol';
+import { Math } from './lib/Math.sol';
+import { UQ112x112 } from './lib/UQ112x112.sol';
 import { IUniswapV2Factory } from './interfaces/IUniswapV2Factory.sol';
 import { IUniswapV2Callee } from './interfaces/IUniswapV2Callee.sol';
 import { IERC20, IERC721, IERC1155 } from './interfaces/AbridgedTokenInterfaces.sol';
