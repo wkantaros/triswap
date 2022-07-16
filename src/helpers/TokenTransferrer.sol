@@ -5,11 +5,11 @@ import {
     IERC20,
     IERC721,
     IERC1155
-} from "../src/interfaces/AbridgedTokenInterfaces.sol";
+} from "src/interfaces/AbridgedTokenInterfaces.sol";
 
 import {
     TokenTransferrerErrors
-} from "../src/interfaces/TokenTransferrerErrors.sol";
+} from "src/interfaces/TokenTransferrerErrors.sol";
 
 // credit @ Seaport
 contract TokenTransferrer is TokenTransferrerErrors {

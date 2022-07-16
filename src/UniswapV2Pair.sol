@@ -3,21 +3,22 @@ pragma solidity ^0.8.7;
 
 import { IUniswapV2Pair } from './interfaces/IUniswapV2Pair.sol';
 import { UniswapV2ERC20 } from './UniswapV2ERC20.sol';
-import { Math } from './libraries/Math.sol';
-import { UQ112x112 } from './libraries/UQ112x112.sol';
+import { Math } from 'lib/Math.sol';
+import { UQ112x112 } from 'lib/UQ112x112.sol';
 import { IUniswapV2Factory } from './interfaces/IUniswapV2Factory.sol';
 import { IUniswapV2Callee } from './interfaces/IUniswapV2Callee.sol';
 import { IERC20, IERC721, IERC1155 } from './interfaces/AbridgedTokenInterfaces.sol';
-import { TokenItemType, PoolToken } from './libraries/TokenStructs.sol';
+import { TokenItemType, PoolToken } from './helpers/TokenStructs.sol';
+import { TokenTransferrer } from './helpers/TokenTransferrer.sol';
 
-contract UniswapV2Pair is IUniswapV2Pair, UniswapV2ERC20, TokenTransferer {
+contract UniswapV2Pair is IUniswapV2Pair, UniswapV2ERC20, TokenTransferrer {
     using UQ112x112 for uint224;
 
     uint256 public constant MINIMUM_LIQUIDITY = 10**3;
 
     address public factory;
-    PoolToken public token0;
-    PoolToken public token1;
+    PoolToken private token0;
+    PoolToken private token1;
 
     uint112 private reserve0;           // uses single storage slot, accessible via getReserves
     uint112 private reserve1;           // uses single storage slot, accessible via getReserves
@@ -44,7 +45,7 @@ contract UniswapV2Pair is IUniswapV2Pair, UniswapV2ERC20, TokenTransferer {
         _blockTimestampLast = blockTimestampLast;
     }
 
-    function _safeTransfer(PoolToken token, address to, uint value) private {
+    function _safeTransfer(PoolToken memory token, address to, uint value) private {
         require(value > 0, "token transfer value 0");
         if (token.tokenItemType == TokenItemType.ERC20) {
             _performERC20Transfer(token.tokenAddress, address(this), to, value);
@@ -52,13 +53,13 @@ contract UniswapV2Pair is IUniswapV2Pair, UniswapV2ERC20, TokenTransferer {
             _performERC1155Transfer(token.tokenAddress, address(this), to, token.id, value);
         } else {
             // transfer any nfts of collection
-            // inspired by sudo
-            uint256[] idSet = (token.tokenAddress == token0.tokenAddress) ? idSetToken0 : idSetToken1;
+            uint256[] storage idSet = (token.tokenAddress == token0.tokenAddress) ? idSetToken0 : idSetToken1;
+            
             require(idSet.length >= value, "insufficient balance");
             uint256 lastIndex = idSet.length - 1;
             for (uint i; i < value;){
                 uint id = idSet[lastIndex];
-                _performERC721Transfer(token.Address, address(this), to, id);
+                _performERC721Transfer(token.tokenAddress, address(this), to, id);
                 idSet.pop();
                 unchecked {
                     --lastIndex;
@@ -68,17 +69,17 @@ contract UniswapV2Pair is IUniswapV2Pair, UniswapV2ERC20, TokenTransferer {
         }
     }
 
-    event Mint(address indexed sender, uint amount0, uint amount1);
-    event Burn(address indexed sender, uint amount0, uint amount1, address indexed to);
-    event Swap(
-        address indexed sender,
-        uint amount0In,
-        uint amount1In,
-        uint amount0Out,
-        uint amount1Out,
-        address indexed to
-    );
-    event Sync(uint112 reserve0, uint112 reserve1);
+    // event Mint(address indexed sender, uint amount0, uint amount1);
+    // event Burn(address indexed sender, uint amount0, uint amount1, address indexed to);
+    // event Swap(
+    //     address indexed sender,
+    //     uint amount0In,
+    //     uint amount1In,
+    //     uint amount0Out,
+    //     uint amount1Out,
+    //     address indexed to
+    // );
+    // event Sync(uint112 reserve0, uint112 reserve1);
 
     constructor() {
         factory = msg.sender;
@@ -98,8 +99,8 @@ contract UniswapV2Pair is IUniswapV2Pair, UniswapV2ERC20, TokenTransferer {
         uint32 timeElapsed = blockTimestamp - blockTimestampLast; // overflow is desired
         if (timeElapsed > 0 && _reserve0 != 0 && _reserve1 != 0) {
             // * never overflows, and + overflow is desired
-            price0CumulativeLast += uint(UQ112x112.encode(_reserve1).uqdiv(_reserve0)) * timeElapsed;
-            price1CumulativeLast += uint(UQ112x112.encode(_reserve0).uqdiv(_reserve1)) * timeElapsed;
+            price0CumulativeLast += uint256(UQ112x112.encode(_reserve1).uqdiv(_reserve0)) * timeElapsed;
+            price1CumulativeLast += uint256(UQ112x112.encode(_reserve0).uqdiv(_reserve1)) * timeElapsed;
         }
         reserve0 = uint112(balance0);
         reserve1 = uint112(balance1);
@@ -128,14 +129,30 @@ contract UniswapV2Pair is IUniswapV2Pair, UniswapV2ERC20, TokenTransferer {
         }
     }
 
-    function _getBalanceOf(PoolToken calldata poolToken, address owner) private view returns (uint256) {
+    function _getBalanceOf(PoolToken memory poolToken, address owner) private view returns (uint256) {
         if (poolToken.tokenItemType == TokenItemType.ERC20) {
             return IERC20(poolToken.tokenAddress).balanceOf(owner);
         } else if (poolToken.tokenItemType == TokenItemType.ERC721) {
             return IERC721(poolToken.tokenAddress).balanceOf(owner);
         } else {
-            return ERC1155(poolToken.tokenAddress).balanceOf(owner, poolToken.id);
+            return IERC1155(poolToken.tokenAddress).balanceOf(owner, poolToken.id);
         }
+    }
+
+    function getToken0() external view returns (PoolToken memory){
+        return PoolToken({
+            tokenAddress: token0.tokenAddress,
+            tokenItemType: token0.tokenItemType,
+            id: token0.id
+        });
+    }
+
+    function getToken1() external view returns (PoolToken memory){
+        return PoolToken({
+            tokenAddress: token1.tokenAddress,
+            tokenItemType: token1.tokenItemType,
+            id: token1.id
+        });
     }
 
     // this low-level function should be called from a contract which performs important safety checks
@@ -165,8 +182,8 @@ contract UniswapV2Pair is IUniswapV2Pair, UniswapV2ERC20, TokenTransferer {
     // this low-level function should be called from a contract which performs important safety checks
     function burn(address to) external lock returns (uint256 amount0, uint256 amount1) {
         (uint112 _reserve0, uint112 _reserve1,) = getReserves(); // gas savings
-        PoolToken _token0 = token0;                                // gas savings
-        PoolToken _token1 = token1;                                // gas savings
+        PoolToken memory _token0 = token0;                                // gas savings
+        PoolToken memory _token1 = token1;                                // gas savings
         uint256 balance0 = _getBalanceOf(_token0, address(this));
         uint256 balance1 = _getBalanceOf(_token1, address(this));
         uint256 liquidity = balanceOf[address(this)];
@@ -196,9 +213,9 @@ contract UniswapV2Pair is IUniswapV2Pair, UniswapV2ERC20, TokenTransferer {
         uint balance0;
         uint balance1;
         { // scope for _token{0,1}, avoids stack too deep errors
-        PoolToken _token0 = token0;
-        PoolToken _token1 = token1;
-        require(to != _token0 && to != _token1, 'UniswapV2: INVALID_TO');
+        PoolToken memory _token0 = token0;
+        PoolToken memory _token1 = token1;
+        require(to != _token0.tokenAddress && to != _token1.tokenAddress, 'UniswapV2: INVALID_TO');
         if (amount0Out > 0) _safeTransfer(_token0, to, amount0Out); // optimistically transfer tokens
         if (amount1Out > 0) _safeTransfer(_token1, to, amount1Out); // optimistically transfer tokens
         if (data.length > 0) IUniswapV2Callee(to).uniswapV2Call(msg.sender, amount0Out, amount1Out, data);
@@ -209,8 +226,8 @@ contract UniswapV2Pair is IUniswapV2Pair, UniswapV2ERC20, TokenTransferer {
         uint amount1In = balance1 > _reserve1 - amount1Out ? balance1 - (_reserve1 - amount1Out) : 0;
         require(amount0In > 0 || amount1In > 0, 'UniswapV2: INSUFFICIENT_INPUT_AMOUNT');
         { // scope for reserve{0,1}Adjusted, avoids stack too deep errors
-        uint balance0Adjusted = balance0 * 1000 - amount0In.mul(3);
-        uint balance1Adjusted = balance1 * 1000 - amount1In.mul(3);
+        uint balance0Adjusted = (balance0 * 1000) - (amount0In * 3);
+        uint balance1Adjusted = (balance1 * 1000) - (amount1In * 3);
         require(balance0Adjusted * balance1Adjusted >= uint256(_reserve0) * uint256(_reserve1) * (1000**2), 'UniswapV2: K');
         }
 
@@ -220,15 +237,15 @@ contract UniswapV2Pair is IUniswapV2Pair, UniswapV2ERC20, TokenTransferer {
 
     // force balances to match reserves
     function skim(address to) external lock {
-        PoolToken _token0 = token0; // gas savings
-        PoolToken _token1 = token1; // gas savings
+        PoolToken memory _token0 = token0; // gas savings
+        PoolToken memory _token1 = token1; // gas savings
         _safeTransfer(_token0, to, _getBalanceOf(_token0, address(this)) - reserve0);
         _safeTransfer(_token1, to, _getBalanceOf(_token1, address(this)) - reserve1);
     }
 
     // force reserves to match balances
     function sync() external lock {
-        _update(_getBalanceOf(_token0, address(this)), _getBalanceOf(_token1, address(this)), reserve0, reserve1);
+        _update(_getBalanceOf(token0, address(this)), _getBalanceOf(token1, address(this)), reserve0, reserve1);
     }
 
     // add id to arr if nft of collection
@@ -255,6 +272,6 @@ contract UniswapV2Pair is IUniswapV2Pair, UniswapV2ERC20, TokenTransferer {
         uint256,
         bytes calldata
     ) external virtual returns (bytes4) {
-        return ERC1155TokenReceiver.onERC1155Received.selector;
+        return this.onERC1155Received.selector;
     }
 }

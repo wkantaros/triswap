@@ -1,4 +1,7 @@
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.7;
+
+import { PoolToken, TokenPair } from 'src/helpers/TokenStructs.sol';
 
 interface IUniswapV2Factory {
     event PairCreated(
@@ -16,16 +19,21 @@ interface IUniswapV2Factory {
     function feeToSetter() external view returns (address);
 
     function getPair(address tokenA, address tokenB) external view returns (address pair);
+    // function getPair(address tokenA, address tokenB) external view returns (TokenPair memory pair);
     function allPairs(uint) external view returns (address pair);
     function allPairsLength() external view returns (uint);
 
+    // function createPair(
+    //     address tokenA, 
+    //     address tokenB, 
+    //     uint8 tokenAType, 
+    //     uint8 tokenBType, 
+    //     uint256 tokenAId,
+    //     uint256 tokenBId
+    // ) external returns (address pair);
     function createPair(
-        address tokenA, 
-        address tokenB, 
-        uint8 tokenAType, 
-        uint8 tokenBType, 
-        uint256 tokenAId,
-        uint256 tokenBId
+        PoolToken calldata tokenA,
+        PoolToken calldata tokenB
     ) external returns (address pair);
 
     function setFeeTo(address) external;
