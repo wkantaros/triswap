@@ -5,8 +5,8 @@ import { IUniswapV2ERC20 } from "./interfaces/IUniswapV2ERC20.sol";
 
 contract UniswapV2ERC20 is IUniswapV2ERC20 {
 
-    string public constant name = "Uniswap V2";
-    string public constant symbol = "UNI-V2";
+    string public constant name = "Triiswap";
+    string public constant symbol = "TRI-V2";
     uint8 public constant decimals = 18;
     uint256  public totalSupply;
     mapping(address => uint256) public balanceOf;
