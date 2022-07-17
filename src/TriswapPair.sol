@@ -5,7 +5,7 @@ import { ITriswapPair } from './interfaces/ITriswapPair.sol';
 import { ERC20 } from 'solmate/tokens/ERC20.sol';
 import { Math } from './lib/Math.sol';
 import { UQ112x112 } from './lib/UQ112x112.sol';
-import { IUniswapV2Factory } from './interfaces/IUniswapV2Factory.sol';
+import { ITriswapFactory } from './interfaces/ITriswapFactory.sol';
 import { IUniswapV2Callee } from './interfaces/IUniswapV2Callee.sol';
 import { IERC20, IERC721, IERC1155 } from './interfaces/AbridgedTokenInterfaces.sol';
 import { TokenItemType, PoolToken } from './helpers/TokenStructs.sol';
@@ -106,7 +106,7 @@ contract TriswapPair is ITriswapPair, TokenTransferrer, ERC20 {
 
     // if fee is on, mint liquidity equivalent to 1/6th of the growth in sqrt(k)
     function _mintFee(uint112 _reserve0, uint112 _reserve1) private returns (bool feeOn) {
-        address feeTo = IUniswapV2Factory(factory).feeTo();
+        address feeTo = ITriswapFactory(factory).feeTo();
         feeOn = feeTo != address(0);
         uint256 _kLast = kLast; // gas savings
         if (feeOn) {
