@@ -3,7 +3,8 @@ pragma solidity ^0.8.7;
 
 import { PoolToken, TokenPair } from 'src/helpers/TokenStructs.sol';
 
-interface IUniswapV2Factory {
+// IUniswapV2Factory w minor adjustments
+interface ITriswapFactory {
     event PairCreated(
         address indexed token0, 
         address indexed token1, 

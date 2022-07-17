@@ -1,11 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.7;
 
-import { IUniswapV2Factory } from './interfaces/IUniswapV2Factory.sol';
+import { ITriswapFactory } from './interfaces/ITriswapFactory.sol';
 import { TriswapPair, ITriswapPair } from './TriswapPair.sol';
 import { TokenItemType, PoolToken, TokenPair } from './helpers/TokenStructs.sol';
 
-contract UniswapV2Factory is IUniswapV2Factory {
+
+// UniswapV2Factory w new createpair criteria
+contract TriswapFactory is ITriswapFactory {
     address public feeTo;
     address public feeToSetter;
 
