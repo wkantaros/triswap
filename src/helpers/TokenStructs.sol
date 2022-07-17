@@ -10,7 +10,7 @@ enum TokenItemType {
 struct PoolToken {
   address tokenAddress;
   TokenItemType tokenItemType;
-  uint256 id; // needed for 1155 transfers 
+  uint88 id; // needed for 1155 transfers 
 }
 
 struct TokenPair {

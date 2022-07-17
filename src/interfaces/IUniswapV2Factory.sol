@@ -18,19 +18,10 @@ interface IUniswapV2Factory {
     function feeTo() external view returns (address);
     function feeToSetter() external view returns (address);
 
-    function getPair(address tokenA, address tokenB) external view returns (address pair);
-    // function getPair(address tokenA, address tokenB) external view returns (TokenPair memory pair);
+    function getPair(bytes32 token0, bytes32 token1) external view returns (address pair);
     function allPairs(uint) external view returns (address pair);
     function allPairsLength() external view returns (uint);
 
-    // function createPair(
-    //     address tokenA, 
-    //     address tokenB, 
-    //     uint8 tokenAType, 
-    //     uint8 tokenBType, 
-    //     uint256 tokenAId,
-    //     uint256 tokenBId
-    // ) external returns (address pair);
     function createPair(
         PoolToken calldata tokenA,
         PoolToken calldata tokenB

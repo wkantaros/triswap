@@ -2,7 +2,7 @@
 pragma solidity ^0.8.7;
 
 import { IUniswapV2Pair } from './interfaces/IUniswapV2Pair.sol';
-import { UniswapV2ERC20 } from './UniswapV2ERC20.sol';
+import { ERC20 } from 'solmate/tokens/ERC20.sol';
 import { Math } from './lib/Math.sol';
 import { UQ112x112 } from './lib/UQ112x112.sol';
 import { IUniswapV2Factory } from './interfaces/IUniswapV2Factory.sol';
@@ -11,14 +11,14 @@ import { IERC20, IERC721, IERC1155 } from './interfaces/AbridgedTokenInterfaces.
 import { TokenItemType, PoolToken } from './helpers/TokenStructs.sol';
 import { TokenTransferrer } from './helpers/TokenTransferrer.sol';
 
-contract UniswapV2Pair is IUniswapV2Pair, UniswapV2ERC20, TokenTransferrer {
+contract UniswapV2Pair is IUniswapV2Pair, TokenTransferrer, ERC20 {
     using UQ112x112 for uint224;
 
     uint256 public constant MINIMUM_LIQUIDITY = 10**3;
 
     address public factory;
-    PoolToken private token0;
-    PoolToken private token1;
+    bytes32 private token0;   // accessible via unpackToken
+    bytes32 private token1;   // accessible via unpackToken
 
     uint112 private reserve0;           // uses single storage slot, accessible via getReserves
     uint112 private reserve1;           // uses single storage slot, accessible via getReserves
@@ -45,15 +45,23 @@ contract UniswapV2Pair is IUniswapV2Pair, UniswapV2ERC20, TokenTransferrer {
         _blockTimestampLast = blockTimestampLast;
     }
 
+    function unpackToken0() external view returns (PoolToken memory) {
+       return  _unpackToken(token0);
+    }
+
+    function unpackToken1() external view returns (PoolToken memory) {
+        return _unpackToken(token0);
+    }
+
     function _safeTransfer(PoolToken memory token, address to, uint value) private {
         require(value > 0, "token transfer value 0");
         if (token.tokenItemType == TokenItemType.ERC20) {
             _performERC20Transfer(token.tokenAddress, address(this), to, value);
         } else if (token.tokenItemType == TokenItemType.ERC1155) {
-            _performERC1155Transfer(token.tokenAddress, address(this), to, token.id, value);
+            _performERC1155Transfer(token.tokenAddress, address(this), to, uint256(token.id), value);
         } else {
             // transfer any nfts of collection
-            uint256[] storage idSet = (token.tokenAddress == token0.tokenAddress) ? idSetToken0 : idSetToken1;
+            uint256[] storage idSet = (token.tokenAddress == _address(token0)) ? idSetToken0 : idSetToken1;
             
             require(idSet.length >= value, "insufficient balance");
             uint256 lastIndex = idSet.length - 1;
@@ -69,24 +77,12 @@ contract UniswapV2Pair is IUniswapV2Pair, UniswapV2ERC20, TokenTransferrer {
         }
     }
 
-    // event Mint(address indexed sender, uint amount0, uint amount1);
-    // event Burn(address indexed sender, uint amount0, uint amount1, address indexed to);
-    // event Swap(
-    //     address indexed sender,
-    //     uint amount0In,
-    //     uint amount1In,
-    //     uint amount0Out,
-    //     uint amount1Out,
-    //     address indexed to
-    // );
-    // event Sync(uint112 reserve0, uint112 reserve1);
-
-    constructor() {
+    constructor() ERC20("Triswap", "Tri", 18){
         factory = msg.sender;
     }
 
     // called once by the factory at time of deployment
-    function initialize(PoolToken calldata _token0, PoolToken calldata _token1) external {
+    function initialize(bytes32 _token0, bytes32 _token1) external {
         require(msg.sender == factory, 'UniswapV2: FORBIDDEN'); // sufficient check
         token0 = _token0;
         token1 = _token1;
@@ -135,31 +131,29 @@ contract UniswapV2Pair is IUniswapV2Pair, UniswapV2ERC20, TokenTransferrer {
         } else if (poolToken.tokenItemType == TokenItemType.ERC721) {
             return IERC721(poolToken.tokenAddress).balanceOf(owner);
         } else {
-            return IERC1155(poolToken.tokenAddress).balanceOf(owner, poolToken.id);
+            return IERC1155(poolToken.tokenAddress).balanceOf(owner, uint256(poolToken.id));
         }
     }
 
-    function getToken0() external view returns (PoolToken memory){
+    function _unpackToken(bytes32 packedToken) private pure returns (PoolToken memory) {
         return PoolToken({
-            tokenAddress: token0.tokenAddress,
-            tokenItemType: token0.tokenItemType,
-            id: token0.id
+            tokenAddress: _address(packedToken),
+            tokenItemType: TokenItemType(uint8(bytes1((packedToken << 160)))),
+            id: uint88(bytes11((packedToken << 168)))
         });
     }
 
-    function getToken1() external view returns (PoolToken memory){
-        return PoolToken({
-            tokenAddress: token1.tokenAddress,
-            tokenItemType: token1.tokenItemType,
-            id: token1.id
-        });
+    function _address(bytes32 packedToken) private pure returns (address tokenAddress) {
+       tokenAddress = address(uint160(bytes20(packedToken)));
     }
 
     // this low-level function should be called from a contract which performs important safety checks
     function mint(address to) external lock returns (uint256 liquidity) {
         (uint112 _reserve0, uint112 _reserve1,) = getReserves(); // gas savings
-        uint256 balance0 = _getBalanceOf(token0, address(this));
-        uint256 balance1 = _getBalanceOf(token1, address(this));
+        PoolToken memory _token0 = _unpackToken(token0);
+        PoolToken memory _token1 = _unpackToken(token1);
+        uint256 balance0 = _getBalanceOf(_token0, address(this));
+        uint256 balance1 = _getBalanceOf(_token1, address(this));
         uint256 amount0 = balance0 - _reserve0;
         uint256 amount1 = balance1 - _reserve1;
 
@@ -182,8 +176,8 @@ contract UniswapV2Pair is IUniswapV2Pair, UniswapV2ERC20, TokenTransferrer {
     // this low-level function should be called from a contract which performs important safety checks
     function burn(address to) external lock returns (uint256 amount0, uint256 amount1) {
         (uint112 _reserve0, uint112 _reserve1,) = getReserves(); // gas savings
-        PoolToken memory _token0 = token0;                                // gas savings
-        PoolToken memory _token1 = token1;                                // gas savings
+        PoolToken memory _token0 = _unpackToken(token0);
+        PoolToken memory _token1 = _unpackToken(token1);
         uint256 balance0 = _getBalanceOf(_token0, address(this));
         uint256 balance1 = _getBalanceOf(_token1, address(this));
         uint256 liquidity = balanceOf[address(this)];
@@ -213,8 +207,8 @@ contract UniswapV2Pair is IUniswapV2Pair, UniswapV2ERC20, TokenTransferrer {
         uint balance0;
         uint balance1;
         { // scope for _token{0,1}, avoids stack too deep errors
-        PoolToken memory _token0 = token0;
-        PoolToken memory _token1 = token1;
+        PoolToken memory _token0 = _unpackToken(token0);
+        PoolToken memory _token1 = _unpackToken(token1);
         require(to != _token0.tokenAddress && to != _token1.tokenAddress, 'UniswapV2: INVALID_TO');
         if (amount0Out > 0) _safeTransfer(_token0, to, amount0Out); // optimistically transfer tokens
         if (amount1Out > 0) _safeTransfer(_token1, to, amount1Out); // optimistically transfer tokens
@@ -237,15 +231,15 @@ contract UniswapV2Pair is IUniswapV2Pair, UniswapV2ERC20, TokenTransferrer {
 
     // force balances to match reserves
     function skim(address to) external lock {
-        PoolToken memory _token0 = token0; // gas savings
-        PoolToken memory _token1 = token1; // gas savings
+        PoolToken memory _token0 = _unpackToken(token0);
+        PoolToken memory _token1 = _unpackToken(token1);
         _safeTransfer(_token0, to, _getBalanceOf(_token0, address(this)) - reserve0);
         _safeTransfer(_token1, to, _getBalanceOf(_token1, address(this)) - reserve1);
     }
 
     // force reserves to match balances
     function sync() external lock {
-        _update(_getBalanceOf(token0, address(this)), _getBalanceOf(token1, address(this)), reserve0, reserve1);
+        _update(_getBalanceOf( _unpackToken(token0), address(this)), _getBalanceOf( _unpackToken(token1), address(this)), reserve0, reserve1);
     }
 
     // add id to arr if nft of collection
@@ -257,9 +251,9 @@ contract UniswapV2Pair is IUniswapV2Pair, UniswapV2ERC20, TokenTransferrer {
         bytes memory
     ) public virtual returns (bytes4) {
         // If it's from the pair's NFT, add the ID to respective array
-        if (msg.sender == token0.tokenAddress) {
+        if (msg.sender == _address(token0)) {
             idSetToken0.push(id);
-        } else if (msg.sender == token1.tokenAddress) {
+        } else if (msg.sender == _address(token1)) {
             idSetToken1.push(id);
         }
         return this.onERC721Received.selector;

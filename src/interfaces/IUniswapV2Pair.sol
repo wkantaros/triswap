@@ -18,8 +18,8 @@ interface IUniswapV2Pair {
 
     function MINIMUM_LIQUIDITY() external pure returns (uint);
     function factory() external view returns (address);
-    function getToken0() external view returns (PoolToken memory);
-    function getToken1() external view returns (PoolToken memory);
+    function unpackToken0() external view returns (PoolToken memory);
+    function unpackToken1() external view returns (PoolToken memory);
     function getReserves() external view returns (uint112 reserve0, uint112 reserve1, uint32 blockTimestampLast);
     function price0CumulativeLast() external view returns (uint);
     function price1CumulativeLast() external view returns (uint);
@@ -31,5 +31,5 @@ interface IUniswapV2Pair {
     function skim(address to) external;
     function sync() external;
 
-    function initialize(PoolToken calldata, PoolToken calldata) external;
+    function initialize(bytes32 token0, bytes32 token1) external;
 }

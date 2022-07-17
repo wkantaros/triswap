@@ -9,8 +9,7 @@ contract UniswapV2Factory is IUniswapV2Factory {
     address public feeTo;
     address public feeToSetter;
 
-    mapping(address => mapping(address => address)) public getPair;
-    // mapping(address => mapping(address => TokenPair)) public getPair;
+    mapping(bytes32 => mapping(bytes32 => address)) public getPair;
     address[] public allPairs;
 
     // event PairCreated(address indexed token0, address indexed token1, uint8 token0Type, uint8 token1Type, address pair, uint256);
@@ -27,34 +26,25 @@ contract UniswapV2Factory is IUniswapV2Factory {
         PoolToken calldata tokenA, 
         PoolToken calldata tokenB
     ) external returns (address pair) {
-        // currently doesnt allow for 1155 id1 <-> 1155 id2 swaps :(
-        require(tokenA.tokenAddress != tokenB.tokenAddress, 'UniswapV2: IDENTICAL_ADDRESSES');
-        // (PoolToken memory poolToken0, PoolToken memory poolToken1) = 
-        //     tokenA < tokenB 
-        //     ? (PoolToken({tokenAddress: tokenA, tokenItemType: TokenItemType(tokenAType), id: tokenAId}), PoolToken({tokenAddress: tokenB, tokenItemType: TokenItemType(tokenBType), id: tokenBId}))
-        //     : (PoolToken({tokenAddress: tokenB, tokenItemType: TokenItemType(tokenBType), id: tokenBId}), PoolToken({tokenAddress: tokenA, tokenItemType: TokenItemType(tokenAType), id: tokenAId}));
-        (PoolToken calldata poolToken0, PoolToken calldata poolToken1) = 
+        (PoolToken memory poolToken0, PoolToken memory poolToken1) = 
             tokenA.tokenAddress < tokenB.tokenAddress
             ? (tokenA, tokenB)
             : (tokenB, tokenA);
+        bytes32 packedToken0 = packToken(poolToken0.tokenAddress, poolToken0.tokenItemType, poolToken0.id);
+        bytes32 packedToken1 = packToken(poolToken1.tokenAddress, poolToken1.tokenItemType, poolToken1.id);
+        require(packedToken0 != packedToken1, "duplicate tokens");
         require(poolToken0.tokenAddress != address(0), 'UniswapV2: ZERO_ADDRESS');
-        require(getPair[poolToken0.tokenAddress][poolToken1.tokenAddress] == address(0), 'UniswapV2: PAIR_EXISTS'); // single check is sufficient
-        // require(getPair[poolToken0.tokenAddress][poolToken1.tokenAddress].pairAddress == address(0), 'UniswapV2: PAIR_EXISTS'); // single check is sufficient
+        require(getPair[packedToken0][packedToken1] == address(0), 'UniswapV2: PAIR_EXISTS'); // single check is sufficient
 
         bytes memory bytecode = type(UniswapV2Pair).creationCode;
-        bytes32 salt = keccak256(abi.encodePacked(poolToken0.tokenAddress, poolToken1.tokenAddress));
+        bytes32 salt = keccak256(abi.encodePacked(packedToken0, packedToken1));
         assembly {
             pair := create2(0, add(bytecode, 32), mload(bytecode), salt)
         }
-        IUniswapV2Pair(pair).initialize(poolToken0, poolToken1);
+        IUniswapV2Pair(pair).initialize(packedToken0, packedToken1);
 
         // no need to populate both sides
-        getPair[poolToken0.tokenAddress][poolToken1.tokenAddress] = pair;
-        // getPair[poolToken0.tokenAddress][poolToken1.tokenAddress] = TokenPair({
-        //     token0: poolToken0,
-        //     token1: poolToken1,
-        //     pairAddress: pair
-        // });
+        getPair[packedToken0][packedToken1] = pair;
 
         allPairs.push(pair);
         emit PairCreated(
@@ -77,5 +67,18 @@ contract UniswapV2Factory is IUniswapV2Factory {
     function setFeeToSetter(address _feeToSetter) external {
         require(msg.sender == feeToSetter, 'UniswapV2: FORBIDDEN');
         feeToSetter = _feeToSetter;
+    }
+
+    function packToken(address tokenAddress, TokenItemType tokenType, uint88 id) public pure returns (bytes32 packed) {
+        // only 1155s with id's < 2^88 currently supported 
+        packed = bytes32(bytes20(tokenAddress)) 
+            | (bytes32(bytes1(uint8(tokenType))) >> 160) 
+            | (bytes32(bytes11(id)) >> 168);
+    }
+
+    function unpackToken(bytes32 packedToken) external pure returns (address tokenAddress, TokenItemType tokenType, uint88 id) {
+        tokenAddress = address(uint160(bytes20(packedToken)));
+        tokenType = TokenItemType(uint8(bytes1((packedToken << 160))));
+        id = uint88(bytes11((packedToken << 168)));
     }
 }
