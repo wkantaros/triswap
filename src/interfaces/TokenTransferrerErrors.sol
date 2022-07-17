@@ -3,7 +3,7 @@ pragma solidity ^0.8.7;
 
 /**
  * @title TokenTransferrerErrors
- * pulled from @ Seaport 
+ * abbreviated @ https://github.com/ProjectOpenSea/seaport
  */
 interface TokenTransferrerErrors {
 
