@@ -5,4 +5,4 @@ user can create pools between any ERC20, 721, and 1155 tokens
 
 For nfts - can create "fungible pool" for any 721 contract and any 1155 id
 
-currently extended v2-core functionality
+currently extended v2-core functionality, routers coming soon
