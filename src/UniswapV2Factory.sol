@@ -2,7 +2,7 @@
 pragma solidity ^0.8.7;
 
 import { IUniswapV2Factory } from './interfaces/IUniswapV2Factory.sol';
-import { UniswapV2Pair, IUniswapV2Pair } from './UniswapV2Pair.sol';
+import { TriswapPair, ITriswapPair } from './TriswapPair.sol';
 import { TokenItemType, PoolToken, TokenPair } from './helpers/TokenStructs.sol';
 
 contract UniswapV2Factory is IUniswapV2Factory {
@@ -36,12 +36,12 @@ contract UniswapV2Factory is IUniswapV2Factory {
         require(poolToken0.tokenAddress != address(0), 'UniswapV2: ZERO_ADDRESS');
         require(getPair[packedToken0][packedToken1] == address(0), 'UniswapV2: PAIR_EXISTS'); // single check is sufficient
 
-        bytes memory bytecode = type(UniswapV2Pair).creationCode;
+        bytes memory bytecode = type(TriswapPair).creationCode;
         bytes32 salt = keccak256(abi.encodePacked(packedToken0, packedToken1));
         assembly {
             pair := create2(0, add(bytecode, 32), mload(bytecode), salt)
         }
-        IUniswapV2Pair(pair).initialize(packedToken0, packedToken1);
+        ITriswapPair(pair).initialize(packedToken0, packedToken1);
 
         // no need to populate both sides
         getPair[packedToken0][packedToken1] = pair;

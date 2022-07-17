@@ -3,7 +3,7 @@ pragma solidity ^0.8.7;
 
 /**
  * @title TokenTransferrerErrors
- * credit @ Seaport 
+ * pulled from @ Seaport 
  */
 interface TokenTransferrerErrors {
 

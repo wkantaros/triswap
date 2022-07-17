@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.7;
 
-import { IUniswapV2Pair } from './interfaces/IUniswapV2Pair.sol';
+import { ITriswapPair } from './interfaces/ITriswapPair.sol';
 import { ERC20 } from 'solmate/tokens/ERC20.sol';
 import { Math } from './lib/Math.sol';
 import { UQ112x112 } from './lib/UQ112x112.sol';
@@ -11,7 +11,7 @@ import { IERC20, IERC721, IERC1155 } from './interfaces/AbridgedTokenInterfaces.
 import { TokenItemType, PoolToken } from './helpers/TokenStructs.sol';
 import { TokenTransferrer } from './helpers/TokenTransferrer.sol';
 
-contract UniswapV2Pair is IUniswapV2Pair, TokenTransferrer, ERC20 {
+contract TriswapPair is ITriswapPair, TokenTransferrer, ERC20 {
     using UQ112x112 for uint224;
 
     uint256 public constant MINIMUM_LIQUIDITY = 10**3;

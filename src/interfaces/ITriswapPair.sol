@@ -3,7 +3,7 @@ pragma solidity ^0.8.7;
 
 import { TokenItemType, PoolToken } from 'src/helpers/TokenStructs.sol';
 
-interface IUniswapV2Pair {
+interface ITriswapPair {
     event Mint(address indexed sender, uint amount0, uint amount1);
     event Burn(address indexed sender, uint amount0, uint amount1, address indexed to);
     event Swap(
