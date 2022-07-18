@@ -1,5 +1,5 @@
 # Triswap
-opinionated uniswap-style AMM for larger range of token standards (erc20, 721s, and 1155s)
+an opinionated, uniswap-style AMM for a wider range of token standards (erc20, 721s, and 1155s)
 
 ### About
 
