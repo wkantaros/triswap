@@ -1,7 +1,7 @@
 # Triswap
 opinionated uniswap-style AMM for larger range of token standards (erc20, 721s, and 1155s)
 
-### about
+### About
 
 As the NFT space grow, the mechanisms with whcih they transact must also evolve.
 Over the last year, we have seen an emerging class of "fungible" nfts, such as
@@ -12,7 +12,7 @@ NFTs to ever be traded, AMMs are necessary to improve the quality of the ecosyst
 This is a first step at doing that, by provides proof-of-concept base functionality
 for AMM style trading of any combination of ERC20, ERC721, and ERC1155 pairs.
 
-### fungibility requirements + mechanism
+### Fungibility requirements + mechanism
 
 Currently, ERC721s of the same contract, and ERC1155s of the same contract and ID
 are considered "fungible". It is up to the LPer to determine if his/her 721 possesses
@@ -22,14 +22,14 @@ noting that only 1155s with IDs < 2^88 are currently supported. While potentiall
 concern, this ensures that all PoolToken data can be stored in a singular storage slot.
 
 
-### acknowledgements
+### Acknowledgements
 
 Obviously heavily inspired by [Uniswap V2](https://github.com/Uniswap/v2-core)
 
 Small techincal decisions also based off of [Seaport](https://github.com/ProjectOpenSea/seaport) and [Sudoswap](https://github.com/sudoswap/lssvm), leading players in advancing the NFT trading space
 
 
-### next steps + future changes
+### Next steps + future changes
 
 This is very preliminary first implementation, and there are additional steps
 needed to ensure proper functionality
