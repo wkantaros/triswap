@@ -3,35 +3,37 @@ an opinionated, uniswap-style AMM for a wider range of token standards (erc20, 7
 
 ## About
 
-As the NFT space grow, the mechanisms with whcih they transact must also evolve.
-Over the last year, we have seen an emerging class of "fungible" nfts, such as
-edition nfts, nft-gated DAOs + communities, in-game items, floors of popular
-collections, and 1155s. With insufficient liquidity in the market for most
-NFTs to ever be traded, AMMs are necessary to improve the quality of the ecosystem.
 
-This is a first step at doing that, by provides proof-of-concept base functionality
-for AMM style trading of any combination of ERC20, ERC721, and ERC1155 pairs.
+Over the last year, we have seen an emerging class of "fungible" nfts: 1 of many editions,
+in-game items, token gated DAOs + events, floors of popular collections, 
+and 1155s, to name a few. While order books allow for exchanges to happen, liquidity
+is sparce and equilibrium prices are difficult to find. As the NFT space grows, the 
+mechanisms with which they transact must also evolve.
+
+This is a first step at doing that, and provides base functionality for a 
+proof-of-concept AMM offering any combination of ERC20, ERC721, and ERC1155 pairs.
 
 ## Fungibility requirements + mechanism
 
-Currently, ERC721s of the same contract, and ERC1155s of the same contract and ID
-are considered "fungible". It is up to the LPer to determine if his/her 721 possesses
-any additional rarity traits that might discourage this type of trading. Upon swaps,
+Currently, ERC721s within the same collection, and ERC1155s within the same collection and
+ID are considered "fungible". It is up to the LPer to determine if his/her 721 possesses
+any additional rarity traits that might discourage this type of trading. During swaps,
 an arbitrary batch of 721s from the collection is distributed to the user. It is worth
-noting that only 1155s with IDs < 2^88 are currently supported. While potentially a
-concern, this ensures that all PoolToken data can be stored in a singular storage slot.
+noting that only 1155s with IDs < 2^88 are currently supported. While potentially limiting,
+this ensures that all PoolToken data can be stored in a singular storage slot.
 
 
 ## Acknowledgements
 
-Obviously heavily inspired by [Uniswap V2](https://github.com/Uniswap/v2-core)
+1) Obviously heavily inspired by [Uniswap V2](https://github.com/Uniswap/v2-core)
 
-Small techincal decisions also based off of [Seaport](https://github.com/ProjectOpenSea/seaport) and [Sudoswap](https://github.com/sudoswap/lssvm), leading players in advancing the NFT trading space
+2) Small techincal decisions also based off of [Seaport](https://github.com/ProjectOpenSea/seaport) 
+and [Sudoswap](https://github.com/sudoswap/lssvm), leading players in advancing the NFT trading space
 
 
 ## Next steps + future changes
 
-This is very preliminary first implementation, and there are additional steps
+This is a very preliminary first implementation, and there are additional steps
 needed to ensure proper functionality
 
 First, NFT-NFT swaps are currently "possible" but there is very little reason
@@ -41,4 +43,4 @@ potential rounding issues
 
 Router implementation soon
 
-More advanced LPing and trading schema for smaller NFT collections
+More advanced LPing and trading characteristics are still needed for smaller NFT collections
