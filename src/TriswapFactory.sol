@@ -14,8 +14,6 @@ contract TriswapFactory is ITriswapFactory {
     mapping(bytes32 => mapping(bytes32 => address)) public getPair;
     address[] public allPairs;
 
-    // event PairCreated(address indexed token0, address indexed token1, uint8 token0Type, uint8 token1Type, address pair, uint256);
-
     constructor(address _feeToSetter) {
         feeToSetter = _feeToSetter;
     }
