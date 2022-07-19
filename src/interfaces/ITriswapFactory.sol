@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.7;
 
-import { PoolToken, TokenPair } from 'src/helpers/TokenStructs.sol';
+import { PoolToken, TokenPair, TokenItemType } from 'src/helpers/TokenStructs.sol';
 
 // IUniswapV2Factory w minor adjustments
 interface ITriswapFactory {
@@ -30,4 +30,7 @@ interface ITriswapFactory {
 
     function setFeeTo(address) external;
     function setFeeToSetter(address) external;
+
+    function packToken(address tokenAddress, TokenItemType tokenType, uint88 id) external pure returns (bytes32 packed);
+    function unpackToken (bytes32 packed) external pure returns (address tokenAddress, uint8 tokenType, uint88 id);
 }
