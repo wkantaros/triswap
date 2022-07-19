@@ -76,9 +76,9 @@ contract TriswapFactory is ITriswapFactory {
             | (bytes32(bytes11(id)) >> 168);
     }
 
-    function unpackToken(bytes32 packedToken) external pure returns (address tokenAddress, TokenItemType tokenType, uint88 id) {
+    function unpackToken(bytes32 packedToken) external pure returns (address tokenAddress, uint8 tokenType, uint88 id) {
         tokenAddress = address(uint160(bytes20(packedToken)));
-        tokenType = TokenItemType(uint8(bytes1((packedToken << 160))));
-        id = uint88(bytes11((packedToken << 168)));
+        tokenType = uint8(bytes1(packedToken << 160));
+        id = uint88(bytes11(packedToken << 168));
     }
 }

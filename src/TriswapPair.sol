@@ -138,7 +138,7 @@ contract TriswapPair is ITriswapPair, TokenTransferrer, ERC20 {
     function _unpackToken(bytes32 packedToken) private pure returns (PoolToken memory) {
         return PoolToken({
             tokenAddress: _address(packedToken),
-            tokenItemType: TokenItemType(uint8(bytes1((packedToken << 160)))),
+            tokenItemType: TokenItemType(uint8(bytes1(packedToken << 160))),
             id: uint88(bytes11((packedToken << 168)))
         });
     }
