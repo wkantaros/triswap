@@ -19,7 +19,7 @@ contract TriswapFactoryTest is DSTest {
   PoolToken pt1155;
 
   function setUp() public {
-    factory = new TriswapFactory(msg.sender);
+    factory = new TriswapFactory(address(this));
     MockERC20 token20 = new MockERC20("test20", "T20", 18);
     MockERC721 token721 = new MockERC721("test20", "T20");
     MockERC1155 token1155 = new MockERC1155();
@@ -53,33 +53,33 @@ contract TriswapFactoryTest is DSTest {
 
   function testCreatePair20To721() public {
     vm.expectEmit(true, true, false, true);
+    factory.createPair(pt20, pt721);
     emit PairCreated(
             pt20.tokenAddress,
             pt721.tokenAddress,
-            address(0xB3d54d965eCa1Cfb97c368Ce8B6eD58E6cA429E7), 
+            factory.allPairs(0),
             uint8(TokenItemType.ERC20),
             uint8(TokenItemType.ERC721),
             0, // default to 0 for non-1155s 
             0, // default to 0 for non-1155s 
             1
         );
-    factory.createPair(pt20, pt721);
   }
 
 
   function testCreatePair1155To721() public {
     vm.expectEmit(true, true, false, true);
+    factory.createPair(pt1155, pt721);
     emit PairCreated(
             pt721.tokenAddress,
             pt1155.tokenAddress,
-            address(0xb7aF60Db779652A5F57873Ffd4721cF918b42545), 
+            factory.allPairs(0),
             uint8(TokenItemType.ERC721),
             uint8(TokenItemType.ERC1155),
             0, // default to 0 for non-1155s 
             88, // 88 for 1155 
             1
         );
-    factory.createPair(pt1155, pt721);
   }
 
   function testPackUnpack1155Token() public {
