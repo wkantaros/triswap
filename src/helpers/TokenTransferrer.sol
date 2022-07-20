@@ -11,7 +11,7 @@ import {
     TokenTransferrerErrors
 } from "src/interfaces/TokenTransferrerErrors.sol";
 
-// seaport inspired
+// seaport inspired, mod erc20.transferFrom -> erc20transfer
 contract TokenTransferrer is TokenTransferrerErrors {
     /**
      * @dev Internal function to transfer ERC20 tokens from a given originator
@@ -19,13 +19,11 @@ contract TokenTransferrer is TokenTransferrerErrors {
      *      contract performing the transfer.
      *
      * @param token      The ERC20 token to transfer.
-     * @param from       The originator of the transfer.
      * @param to         The recipient of the transfer.
      * @param amount     The amount to transfer.
      */
     function _performERC20Transfer(
         address token,
-        address from,
         address to,
         uint256 amount
     ) internal {
@@ -35,8 +33,7 @@ contract TokenTransferrer is TokenTransferrerErrors {
 
         (bool ok, bytes memory data) = token.call(
             abi.encodeWithSelector(
-                IERC20.transferFrom.selector,
-                from,
+                IERC20.transfer.selector,
                 to,
                 amount
             )
@@ -44,14 +41,14 @@ contract TokenTransferrer is TokenTransferrerErrors {
 
         // NOTE: revert reasons are not "bubbled up" at the moment
         if (!ok) {
-            revert TokenTransferGenericFailure(token, from, to, 0, amount);
+            revert TokenTransferGenericFailure(token, address(this), to, 0, amount);
         }
 
         if (data.length != 0 && data.length >= 32) {
             if (!abi.decode(data, (bool))) {
                 revert BadReturnValueFromERC20OnTransfer(
                     token,
-                    from,
+                    address(this),
                     to,
                     amount
                 );
