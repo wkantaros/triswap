@@ -67,7 +67,7 @@ contract TriswapPairTest is DSTest, ERC1155TokenReceiver{
 
     uint id = 0;
     for (uint i; i < 100;){
-      token721.transferFrom(address(this), p20to721, id);
+      token721.safeTransferFrom(address(this), p20to721, id);
       unchecked {
         ++i;
         ++id;
@@ -75,16 +75,136 @@ contract TriswapPairTest is DSTest, ERC1155TokenReceiver{
     }
   }
 
-  // function testMint721() public {
-  // }
+  function testMint721() public {
+    vm.expectEmit(true, false, false, false);
+    ITriswapPair(p20to721).mint(address(this));
+    // sqrt(100*1000000) - 10**3 = 9000
+    assertEq(ITriswapPair(p20to721).balanceOf(address(this)),9000);
+    (uint112 reserve20, uint112 reserve721,) = ITriswapPair(p20to721).getReserves();
+    assertEq(reserve20, 1000000);
+    assertEq(reserve721, 100);
+  }
 
-  // function testMint1155() public {
-  // }
+  function testMint1155() public {
+    vm.expectEmit(true, false, false, false);
+    ITriswapPair(p20to1155).mint(address(this));
+    // sqrt(1000*1000000) is 31622 - 10**3 = 30622
+    assertEq(ITriswapPair(p20to1155).balanceOf(address(this)),30622);
+    (uint112 reserve20, uint112 reserve1155,) = ITriswapPair(p20to1155).getReserves();
+    assertEq(reserve20, 1000000);
+    assertEq(reserve1155, 1000);
+  }
 
+  function testSwap721for20() public {
+    // user sells 10 nfts in return for 90,661 erc20 tokens
+    ITriswapPair(p20to721).mint(address(this));
+    MockERC721BatchMint(pt721.tokenAddress).batchMint(address(0xBEEF), 100, 10);
+    vm.startPrank(address(0xBEEF));
+    uint id = 100;
+    for (uint i; i < 10;){
+      MockERC721BatchMint(pt721.tokenAddress).transferFrom(address(0xBEEF), p20to721, id);
+      unchecked {
+        ++i;
+        ++id;
+      }
+    }
+    vm.stopPrank();
+    ITriswapPair(p20to721).swap(
+        90661, 0, address(0xBEEF), new bytes(0)
+    );
+    assertEq(MockERC20(pt20.tokenAddress).balanceOf(address(0xBEEF)), 90661);
+  }
 
-  // function testSwap721() public {
-  // }
+  function testSwap20for721() public {
+    // NOTE: router must use safeTransferFrom in order to invoke onERC721Received
+    // user sells 31021 erc20 tokens in exchange for 3 nfts
+    ITriswapPair(p20to721).mint(address(this));
+    MockERC20(pt20.tokenAddress).mint(address(0xBEEF), 31021);
+    vm.prank(address(0xBEEF));
+    MockERC20(pt20.tokenAddress).transfer(p20to721, 31021);
+    ITriswapPair(p20to721).swap(
+        0, 3, address(0xBEEF), new bytes(0)
+    );
+    assertEq(MockERC721BatchMint(pt721.tokenAddress).balanceOf(address(0xBEEF)), 3);
+  }
 
-  // function testSwap1155() public {
-  // }
+  function testSwap1155for20() public {
+    // send 1000 erc1155s for 90661 erc20 tokens in return 
+    ITriswapPair(p20to1155).mint(address(this));
+    MockERC1155(pt1155.tokenAddress).mint(address(0xBEEF), 88, 100, "");
+    vm.prank(address(0xBEEF));
+    MockERC1155(pt1155.tokenAddress).safeTransferFrom(address(0xBEEF), p20to1155, 88, 100, "");
+    ITriswapPair(p20to1155).swap(
+        90661, 0, address(0xBEEF), new bytes(0)
+    );
+    assertEq(MockERC20(pt20.tokenAddress).balanceOf(address(0xBEEF)), 90661);
+  }
+
+  function testSwap20for1155() public {
+    // user sells 31021 erc20 tokens in exchange for 30 1155s of same ID
+    ITriswapPair(p20to1155).mint(address(this));
+    MockERC20(pt20.tokenAddress).mint(address(0xBEEF), 31021);
+    vm.prank(address(0xBEEF));
+    MockERC20(pt20.tokenAddress).transfer(p20to1155, 31021);
+    ITriswapPair(p20to1155).swap(
+        0, 30, address(0xBEEF), new bytes(0)
+    );
+    assertEq(MockERC1155(pt1155.tokenAddress).balanceOf(address(0xBEEF), 88), 30);
+  }
+  function testFailSwap721for20() public {
+    // user sells 10 nfts in return for 90,661 erc20 tokens
+    ITriswapPair(p20to721).mint(address(this));
+    MockERC721BatchMint(pt721.tokenAddress).batchMint(address(0xBEEF), 100, 10);
+    vm.startPrank(address(0xBEEF));
+    uint id = 100;
+    for (uint i; i < 10;){
+      MockERC721BatchMint(pt721.tokenAddress).transferFrom(address(0xBEEF), p20to721, id);
+      unchecked {
+        ++i;
+        ++id;
+      }
+    }
+    vm.stopPrank();
+    ITriswapPair(p20to721).swap(
+        90662, 0, address(0xBEEF), new bytes(0)
+    );
+    assertEq(MockERC20(pt20.tokenAddress).balanceOf(address(0xBEEF)), 90662);
+  }
+
+  function testFailSwap20for721() public {
+    // NOTE: router must use safeTransferFrom in order to invoke onERC721Received
+    // user sells 31021 erc20 tokens in exchange for 3 nfts
+    ITriswapPair(p20to721).mint(address(this));
+    MockERC20(pt20.tokenAddress).mint(address(0xBEEF), 31021);
+    vm.prank(address(0xBEEF));
+    MockERC20(pt20.tokenAddress).transfer(p20to721, 31021);
+    ITriswapPair(p20to721).swap(
+        0, 4, address(0xBEEF), new bytes(0)
+    );
+    assertEq(MockERC721BatchMint(pt721.tokenAddress).balanceOf(address(0xBEEF)), 4);
+  }
+
+  function testFailSwap1155for20() public {
+    // send 1000 erc1155s for 90661 erc20 tokens in return 
+    ITriswapPair(p20to1155).mint(address(this));
+    MockERC1155(pt1155.tokenAddress).mint(address(0xBEEF), 88, 100, "");
+    vm.prank(address(0xBEEF));
+    MockERC1155(pt1155.tokenAddress).safeTransferFrom(address(0xBEEF), p20to1155, 88, 100, "");
+    ITriswapPair(p20to1155).swap(
+        90662, 0, address(0xBEEF), new bytes(0)
+    );
+    assertEq(MockERC20(pt20.tokenAddress).balanceOf(address(0xBEEF)), 90662);
+  }
+
+  function testFailSwap20for1155() public {
+    // user sells 31021 erc20 tokens in exchange for 30 1155s of same ID
+    ITriswapPair(p20to1155).mint(address(this));
+    MockERC20(pt20.tokenAddress).mint(address(0xBEEF), 31021);
+    vm.prank(address(0xBEEF));
+    MockERC20(pt20.tokenAddress).transfer(p20to1155, 31021);
+    ITriswapPair(p20to1155).swap(
+        0, 31, address(0xBEEF), new bytes(0)
+    );
+    assertEq(MockERC1155(pt1155.tokenAddress).balanceOf(address(0xBEEF), 88), 31);
+  }
 }
