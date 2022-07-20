@@ -31,6 +31,8 @@ Ultimately, the former felt more intuitive.
 2) Small techincal decisions also based off of [Seaport](https://github.com/ProjectOpenSea/seaport) 
 and [Sudoswap](https://github.com/sudoswap/lssvm), leading players in advancing the NFT trading space
 
+3) [Foundry](https://github.com/foundry-rs/foundry)
+
 ## Additional thoughts
 
 While NFT LPing may be an interest to some defi hobbiests, I see a more likely future
