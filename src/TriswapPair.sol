@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.7;
 
-import { ITriswapPair } from './interfaces/ITriswapPair.sol';
 import { ERC20 } from 'solmate/tokens/ERC20.sol';
 import { Math } from './lib/Math.sol';
 import { UQ112x112 } from './lib/UQ112x112.sol';
@@ -11,7 +10,7 @@ import { IERC20, IERC721, IERC1155 } from './interfaces/AbridgedTokenInterfaces.
 import { TokenItemType, PoolToken } from './helpers/TokenStructs.sol';
 import { TokenTransferrer } from './helpers/TokenTransferrer.sol';
 
-contract TriswapPair is ITriswapPair, TokenTransferrer, ERC20 {
+contract TriswapPair is TokenTransferrer, ERC20 {
     using UQ112x112 for uint224;
 
     uint256 public constant MINIMUM_LIQUIDITY = 10**3;
@@ -31,7 +30,7 @@ contract TriswapPair is ITriswapPair, TokenTransferrer, ERC20 {
     uint256[] private idSetToken0;
     uint256[] private idSetToken1;
 
-    uint private unlocked = 1;
+    uint256 private unlocked = 1;
     modifier lock() {
         require(unlocked == 1, 'UniswapV2: LOCKED');
         unlocked = 0;
@@ -53,20 +52,20 @@ contract TriswapPair is ITriswapPair, TokenTransferrer, ERC20 {
         return _unpackToken(token0);
     }
 
-    function _safeTransfer(PoolToken memory token, address to, uint value) private {
+    function _safeTransfer(PoolToken memory token, address to, uint256 value) private {
         require(value > 0, "token transfer value 0");
         if (token.tokenItemType == TokenItemType.ERC20) {
-            _performERC20Transfer(token.tokenAddress, address(this), to, value);
+            _performERC20Transfer(token.tokenAddress, to, value);
         } else if (token.tokenItemType == TokenItemType.ERC1155) {
             _performERC1155Transfer(token.tokenAddress, address(this), to, uint256(token.id), value);
         } else {
             // transfer any nfts of collection
             uint256[] storage idSet = (token.tokenAddress == _address(token0)) ? idSetToken0 : idSetToken1;
-            
+
             require(idSet.length >= value, "insufficient balance");
             uint256 lastIndex = idSet.length - 1;
-            for (uint i; i < value;){
-                uint id = idSet[lastIndex];
+            for (uint256 i; i < value;){
+                uint256 id = idSet[lastIndex];
                 _performERC721Transfer(token.tokenAddress, address(this), to, id);
                 idSet.pop();
                 unchecked {
@@ -88,8 +87,20 @@ contract TriswapPair is ITriswapPair, TokenTransferrer, ERC20 {
         token1 = _token1;
     }
 
+    event Mint(address indexed sender, uint256 amount0, uint256 amount1);
+    event Burn(address indexed sender, uint256 amount0, uint256 amount1, address indexed to);
+    event Swap(
+        address indexed sender,
+        uint256 amount0In,
+        uint256 amount1In,
+        uint256 amount0Out,
+        uint256 amount1Out,
+        address indexed to
+    );
+    event Sync(uint112 reserve0, uint112 reserve1);
+
     // update reserves and, on the first call per block, price accumulators
-    function _update(uint balance0, uint balance1, uint112 _reserve0, uint112 _reserve1) private {
+    function _update(uint256 balance0, uint256 balance1, uint112 _reserve0, uint112 _reserve1) private {
         require(balance0 <= type(uint112).max && balance1 <= type(uint112).max, 'UniswapV2: OVERFLOW');
         uint32 blockTimestamp = uint32(block.timestamp % 2**32);
         uint32 timeElapsed = blockTimestamp - blockTimestampLast; // overflow is desired
@@ -183,7 +194,7 @@ contract TriswapPair is ITriswapPair, TokenTransferrer, ERC20 {
         uint256 liquidity = balanceOf[address(this)];
 
         bool feeOn = _mintFee(_reserve0, _reserve1);
-        uint _totalSupply = totalSupply; // gas savings, must be defined here since totalSupply can update in _mintFee
+        uint256 _totalSupply = totalSupply; // gas savings, must be defined here since totalSupply can update in _mintFee
         amount0 = liquidity * balance0 / _totalSupply; // using balances ensures pro-rata distribution
         amount1 = liquidity * balance1 / _totalSupply; // using balances ensures pro-rata distribution
         require(amount0 > 0 && amount1 > 0, 'UniswapV2: INSUFFICIENT_LIQUIDITY_BURNED');
@@ -203,9 +214,8 @@ contract TriswapPair is ITriswapPair, TokenTransferrer, ERC20 {
         require(amount0Out > 0 || amount1Out > 0, 'UniswapV2: INSUFFICIENT_OUTPUT_AMOUNT');
         (uint112 _reserve0, uint112 _reserve1,) = getReserves(); // gas savings
         require(amount0Out < _reserve0 && amount1Out < _reserve1, 'UniswapV2: INSUFFICIENT_LIQUIDITY');
-
-        uint balance0;
-        uint balance1;
+        uint256 balance0;
+        uint256 balance1;
         { // scope for _token{0,1}, avoids stack too deep errors
         PoolToken memory _token0 = _unpackToken(token0);
         PoolToken memory _token1 = _unpackToken(token1);
@@ -216,12 +226,12 @@ contract TriswapPair is ITriswapPair, TokenTransferrer, ERC20 {
         balance0 = _getBalanceOf(_token0, address(this));
         balance1 = _getBalanceOf(_token1, address(this));
         }
-        uint amount0In = balance0 > _reserve0 - amount0Out ? balance0 - (_reserve0 - amount0Out) : 0;
-        uint amount1In = balance1 > _reserve1 - amount1Out ? balance1 - (_reserve1 - amount1Out) : 0;
+        uint256 amount0In = balance0 > _reserve0 - amount0Out ? balance0 - (_reserve0 - amount0Out) : 0;
+        uint256 amount1In = balance1 > _reserve1 - amount1Out ? balance1 - (_reserve1 - amount1Out) : 0;
         require(amount0In > 0 || amount1In > 0, 'UniswapV2: INSUFFICIENT_INPUT_AMOUNT');
         { // scope for reserve{0,1}Adjusted, avoids stack too deep errors
-        uint balance0Adjusted = (balance0 * 1000) - (amount0In * 3);
-        uint balance1Adjusted = (balance1 * 1000) - (amount1In * 3);
+        uint256 balance0Adjusted = (balance0 * 1000) - (amount0In * 3);
+        uint256 balance1Adjusted = (balance1 * 1000) - (amount1In * 3);
         require(balance0Adjusted * balance1Adjusted >= uint256(_reserve0) * uint256(_reserve1) * (1000**2), 'UniswapV2: K');
         }
 
@@ -248,7 +258,7 @@ contract TriswapPair is ITriswapPair, TokenTransferrer, ERC20 {
         address,
         address,
         uint256 id,
-        bytes memory
+        bytes calldata
     ) public virtual returns (bytes4) {
         // If it's from the pair's NFT, add the ID to respective array
         if (msg.sender == _address(token0)) {

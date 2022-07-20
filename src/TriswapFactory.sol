@@ -2,7 +2,8 @@
 pragma solidity ^0.8.7;
 
 import { ITriswapFactory } from './interfaces/ITriswapFactory.sol';
-import { TriswapPair, ITriswapPair } from './TriswapPair.sol';
+import { ITriswapPair } from './interfaces/ITriswapPair.sol';
+import { TriswapPair } from './TriswapPair.sol';
 import { TokenItemType, PoolToken, TokenPair } from './helpers/TokenStructs.sol';
 
 
