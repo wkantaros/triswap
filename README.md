@@ -30,6 +30,16 @@ A `tokenItemType` can be `ERC20`, `ERC721`, or `ERC1155`
 
 A `triswapPair` can be any combination of two `tokenItemType`s
 
+## Additional thoughts
+
+While NFT LPing may be an interest to some defi hobbyests, I see a more likely future
+where NFT collections start natively on AMMs, removing the need for minting + order books
+entirely. This would allow for significanly more sustainable communities, where
+quantity and pricing would be determined entirely on market demand.
+
+Current examples are primarily single-sided liquidity bonding curves, such as [Unisocks](https://unisocks.exchange/)
+and Decent's [Crescendo](https://mirror.xyz/0xBAfb15bF152365bd344639b6eDe5Dec09d5Ba64E/vO6w0X-fRibvaPSrJU1UBdCnC_kNps6jOCK3kbWnyTk) model 
+
 ## Acknowledgements
 
 1) Obviously heavily inspired by [Uniswap V2](https://github.com/Uniswap/v2-core)
@@ -39,12 +49,6 @@ and [Sudoswap](https://github.com/sudoswap/lssvm), leading players in advancing 
 
 3) Built with [Foundry](https://github.com/foundry-rs/foundry)
 
-## Additional thoughts
-
-While NFT LPing may be an interest to some defi hobbyests, I see a more likely future
-where NFT collections start natively on AMMs, removing the need for minting + secondary
-trading entirely. This would allow for significanly more sustainable communities, where
-quantity and pricing would be determined entirely on market demand.
 
 ## Next steps + future changes
 
