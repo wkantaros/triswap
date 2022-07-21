@@ -3,7 +3,7 @@ an opinionated, uniswap-style AMM for a wider range of token standards (erc20, 7
 
 ## About
 
-Ironically, we have seen an emerging class of "fungible" nfts in the last year. 
+Ironically, there's been an emerging class of "fungible" nfts. 
 These include one-of-many editions, in-game items, token-gated DAOs + events,
 floors of popular collections, and 1155s as a class, to name a few.
 
@@ -12,7 +12,7 @@ are difficult to find. As the NFT space moves away from just PFPs, new trading m
 can be implemented to help fix these issues.
 
 This is a first step in doing that, and provides base functionality for a 
-proof-of-concept AMM offering any combination of`ERC20`, `ERC721`, and `ERC1155` pairs.
+proof-of-concept AMM offering any combination of `ERC20`, `ERC721`, and `ERC1155` pairs.
 
 ## Fungibility requirements + mechanism
 
@@ -32,12 +32,12 @@ A `triswapPair` can be any combination of two `tokenItemType`s
 
 ## Additional thoughts
 
-While NFT LPing may be an interest to some defi hobbyests, I see a more likely future
+While NFT LPing may be an interest to some defi hobbyists, I see a more likely future
 where NFT collections start natively on AMMs, removing the need for minting + order books
-entirely. This would allow for significanly more sustainable communities, where
-quantity and pricing would be determined entirely on market demand.
+entirely. This would create significanly more sustainable communities, where
+quantity and pricing are determined entirely on market demand.
 
-Examples have primarily taken the form of single-sided liquidity bonding curves, such as 
+Current examples have primarily been single-sided liquidity bonding curves, such as 
 Uniswap's [Unisocks](https://unisocks.exchange/), Decent's [Crescendo](https://mirror.xyz/0xBAfb15bF152365bd344639b6eDe5Dec09d5Ba64E/vO6w0X-fRibvaPSrJU1UBdCnC_kNps6jOCK3kbWnyTk), and Glass's [Prism](https://glass.xyz/v/SVt0Ea518b5fG_FS4fxMZ0Kq8vwlVkdxl1JrVcLXhZw=)
 
 ## Acknowledgements
@@ -55,12 +55,11 @@ and [Sudoswap](https://github.com/sudoswap/lssvm), leading players in advancing 
 This is a very preliminary first implementation, and more of a thought experiment than
 a finished protocol
 
-First, `ERC721` to `ERC721` swaps are currently possible, but there is very little reason
-for these to be used as currently implemented, unless the quantity of each pair
-is sufficiently high. This has to do with minimum liquidity requirements and
-potential rounding issues
+While `ERC721` to `ERC721` swaps are possible, there is very little reason to use them
+as currently implemented, due to minimum liquidity requirements and potential rounding issues.
+More advanced LPing and trading characteristics for smaller collections, ability to select
+721s, etc
 
 Router implementation soon
 
-More advanced LPing and trading characteristics for smaller collections, ability to select
-721s, etc
+
