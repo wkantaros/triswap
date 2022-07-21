@@ -8,8 +8,8 @@ These include one-of-many editions, in-game items, token-gated DAOs + events,
 floors of popular collections, and 1155s as a class, to name a few.
 
 While order books allow for basic trading, liquidity is sparce and equilibrium prices
-are difficult to find. As the "fungible" NFT space continues to grow, new trading mechanisms
-can be must solved to increase liqudity and establish fair pricing.
+are difficult to find. As the NFT space moves away from just PFPs, new trading mechanisms
+can be implemented to help fix these issues.
 
 This is a first step in doing that, and provides base functionality for a 
 proof-of-concept AMM offering any combination of`ERC20`, `ERC721`, and `ERC1155` pairs.
