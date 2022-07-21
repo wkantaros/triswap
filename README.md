@@ -37,8 +37,8 @@ where NFT collections start natively on AMMs, removing the need for minting + or
 entirely. This would allow for significanly more sustainable communities, where
 quantity and pricing would be determined entirely on market demand.
 
-Current examples are primarily single-sided liquidity bonding curves, such as [Unisocks](https://unisocks.exchange/)
-and Decent's [Crescendo](https://mirror.xyz/0xBAfb15bF152365bd344639b6eDe5Dec09d5Ba64E/vO6w0X-fRibvaPSrJU1UBdCnC_kNps6jOCK3kbWnyTk) model 
+Examples have primarily taken the form of single-sided liquidity bonding curves, such as 
+Uniswap's [Unisocks](https://unisocks.exchange/), Decent's [Crescendo](https://mirror.xyz/0xBAfb15bF152365bd344639b6eDe5Dec09d5Ba64E/vO6w0X-fRibvaPSrJU1UBdCnC_kNps6jOCK3kbWnyTk), and Glass's [Prism](https://glass.xyz/v/SVt0Ea518b5fG_FS4fxMZ0Kq8vwlVkdxl1JrVcLXhZw=)
 
 ## Acknowledgements
 
