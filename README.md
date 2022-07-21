@@ -3,7 +3,7 @@ an opinionated, uniswap-style AMM for a wider range of token standards (erc20, 7
 
 ## About
 
-Over the last year, we have seen an emerging class of "fungible" nfts: 1 of many editions,
+Over the last year, we have seen an emerging class of "fungible" nfts: one-of-many editions,
 in-game items, token gated DAOs + events, floors of popular collections, 
 and 1155s, to name a few. While order books allow for exchanges to happen, liquidity
 is sparce and equilibrium prices are difficult to find. For the NFT space to continue to 
