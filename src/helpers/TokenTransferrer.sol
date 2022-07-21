@@ -11,7 +11,7 @@ import {
     TokenTransferrerErrors
 } from "src/interfaces/TokenTransferrerErrors.sol";
 
-// seaport inspired, mod erc20.transferFrom -> erc20transfer
+// seaport, mod erc20.transferFrom -> erc20transfer
 contract TokenTransferrer is TokenTransferrerErrors {
     /**
      * @dev Internal function to transfer ERC20 tokens from a given originator

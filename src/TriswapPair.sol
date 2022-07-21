@@ -27,8 +27,8 @@ contract TriswapPair is TokenTransferrer, ERC20 {
     uint256 public price1CumulativeLast;
     uint256 public kLast; // reserve0 * reserve1, as of immediately after the most recent liquidity event
 
-    uint256[] private idSetToken0;
-    uint256[] private idSetToken1;
+    uint256[] private idStackToken0;
+    uint256[] private idStackToken1;
 
     uint256 private unlocked = 1;
     modifier lock() {
@@ -60,14 +60,14 @@ contract TriswapPair is TokenTransferrer, ERC20 {
             _performERC1155Transfer(token.tokenAddress, address(this), to, uint256(token.id), value);
         } else {
             // transfer any nfts of collection
-            uint256[] storage idSet = (token.tokenAddress == _address(token0)) ? idSetToken0 : idSetToken1;
+            uint256[] storage idStack = (token.tokenAddress == _address(token0)) ? idStackToken0 : idStackToken1;
 
-            require(idSet.length >= value, "insufficient balance");
-            uint256 lastIndex = idSet.length - 1;
+            require(idStack.length >= value, "insufficient balance");
+            uint256 lastIndex = idStack.length - 1;
             for (uint256 i; i < value;){
-                uint256 id = idSet[lastIndex];
+                uint256 id = idStack[lastIndex];
                 _performERC721Transfer(token.tokenAddress, address(this), to, id);
-                idSet.pop();
+                idStack.pop();
                 unchecked {
                     --lastIndex;
                     ++i;
@@ -254,17 +254,18 @@ contract TriswapPair is TokenTransferrer, ERC20 {
 
     // add id to arr if nft of collection
     // no duplicates since 1 id per collection
+    // (maybe need to think about some weird edge cases)
     function onERC721Received(
         address,
         address,
         uint256 id,
         bytes calldata
     ) public virtual returns (bytes4) {
-        // If it's from the pair's NFT, add the ID to respective array
+        // If it's from the pair's NFT, add the ID to respective stack
         if (msg.sender == _address(token0)) {
-            idSetToken0.push(id);
+            idStackToken0.push(id);
         } else if (msg.sender == _address(token1)) {
-            idSetToken1.push(id);
+            idStackToken1.push(id);
         }
         return this.onERC721Received.selector;
     }
