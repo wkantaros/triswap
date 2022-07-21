@@ -16,7 +16,7 @@ proof-of-concept AMM offering any combination of `ERC20`, `ERC721`, and `ERC1155
 
 ## Fungibility requirements + mechanism
 
-Currently, `ERC721` collections, `ERC1155` collections of a particular ID, and `ERC20`s are are
+Currently, `ERC721` collections, `ERC1155` collections with matching `ID`s, and `ERC20`s are
 considered "fungible". It is up to the LPer to determine if their `ERC721` possesses
 any additional rarity traits that might discourage this type of fungibility. 
 
@@ -57,8 +57,9 @@ a finished protocol
 
 While `ERC721` to `ERC721` swaps are possible, there is very little reason to use them
 as currently implemented, due to minimum liquidity requirements and potential rounding issues.
+
 More advanced LPing and trading characteristics for smaller collections, ability to select
-721s, etc
+721s (maybe), need to be implemented
 
 Router implementation soon
 
