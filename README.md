@@ -3,14 +3,16 @@ an opinionated, uniswap-style AMM for a wider range of token standards (erc20, 7
 
 ## About
 
-Over the last year, we have seen an emerging class of "fungible" nfts: one-of-many editions,
-in-game items, token gated DAOs + events, floors of popular collections, 
-and 1155s, to name a few. While order books allow for exchanges to happen, liquidity
-is sparce and equilibrium prices are difficult to find. For the NFT space to continue to 
-grow, trading mechanisms must solve for increased liqudity and fair pricing.
+Ironically, we have seen an emerging class of "fungible" nfts. These include one-of-many editions,
+in-game items, token-gated DAOs + events, floors of popular collections, 
+and 1155s as a class, to name a few.
 
-This is a first step at doing that, and provides base functionality for a 
-proof-of-concept AMM offering any combination of ERC20, ERC721, and ERC1155 pairs.
+While order books allow for basic trading, liquidity is sparce and equilibrium prices
+are difficult to find. As the "fungible" NFT space continues to grow, new trading mechanisms
+can be must solved to increase liqudity and establish fair pricing.
+
+This is a first step in doing that, and provides base functionality for a 
+proof-of-concept AMM offering any combination of`ERC20`, `ERC721`, and `ERC1155` pairs.
 
 ## Fungibility requirements + mechanism
 
