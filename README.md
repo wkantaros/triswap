@@ -19,7 +19,7 @@ ID are considered "fungible". It is up to the LPer to determine if his/her 721 p
 any additional rarity traits that might discourage this type of fungibility. During swaps,
 an arbitrary batch of 721s from the collection is distributed to the user. It is worth
 noting that only 1155s with IDs < 2^88 are currently supported. While potentially limiting,
-this ensures that all relevant token data (`address tokenAddress`, `uint8 tokenItemType`, optional `uint88 id`) can be stored
+this ensures that all relevant token data (`address tokenAddress`, `uint8 tokenItemType`, `uint88 optionalId`) can be stored
 in a single storage slot. `tokenItemType`s are currently assigned either `ERC20`, `ERC721`, and `ERC1155`. 
 Additional 1155 considerations included whether all NFTs within a collection should be fungible, 
 or just those with the same IDs. Ultimately, the former felt more intuitive.
