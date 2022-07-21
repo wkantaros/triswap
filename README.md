@@ -7,22 +7,26 @@ Over the last year, we have seen an emerging class of "fungible" nfts: 1 of many
 in-game items, token gated DAOs + events, floors of popular collections, 
 and 1155s, to name a few. While order books allow for exchanges to happen, liquidity
 is sparce and equilibrium prices are difficult to find. For the NFT space to continue to 
-grow, their trading mechanisms must also evolve.
+grow, trading mechanisms must solve for increased liqudity and fair pricing.
 
 This is a first step at doing that, and provides base functionality for a 
 proof-of-concept AMM offering any combination of ERC20, ERC721, and ERC1155 pairs.
 
 ## Fungibility requirements + mechanism
 
-Currently, ERC721s within the same collection, and ERC1155s within the same collection and
-ID are considered "fungible". It is up to the LPer to determine if his/her 721 possesses
-any additional rarity traits that might discourage this type of fungibility. During swaps,
-an arbitrary batch of 721s from the collection is distributed to the user. It is worth
+Currently, ERC721 collections, ERC1155s collections of a particular ID, and ERC20s are are
+all considered "fungible". It is up to the LPer to determine if their 721 possesses
+any additional rarity traits that might discourage this type of fungibility. 
+
+During swaps, an arbitrary batch of 721s from the collection is distributed to the user. It is worth
 noting that only 1155s with IDs < 2^88 are currently supported. While potentially limiting,
 this ensures that all relevant token data (`address tokenAddress`, `uint8 tokenItemType`, `uint88 optionalId`) can be stored
-in a single storage slot. A `tokenItemType` can be `ERC20`, `ERC721`, or `ERC1155`. 
-Additional 1155 considerations included whether all NFTs within a collection should be fungible, 
-or just those with the same IDs. Ultimately, the former felt more intuitive.
+in a single storage slot. Additional 1155 considerations included whether all NFTs within a collection 
+should be fungible, or just those with the same IDs. Ultimately, the former felt more intuitive.
+
+A `tokenItemType` can be `ERC20`, `ERC721`, or `ERC1155` 
+
+A `triswapPair` can be any combination of two `tokenItemType`s
 
 ## Acknowledgements
 
