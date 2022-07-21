@@ -14,13 +14,13 @@ proof-of-concept AMM offering any combination of ERC20, ERC721, and ERC1155 pair
 
 ## Fungibility requirements + mechanism
 
-Currently, ERC721 collections, ERC1155s collections of a particular ID, and ERC20s are are
-all considered "fungible". It is up to the LPer to determine if their 721 possesses
+Currently, `ERC721` collections, `ERC1155` collections of a particular ID, and `ERC20`s are are
+considered "fungible". It is up to the LPer to determine if their `ERC721` possesses
 any additional rarity traits that might discourage this type of fungibility. 
 
 During swaps, an arbitrary batch of 721s from the collection is distributed to the user. It is worth
 noting that only 1155s with IDs < 2^88 are currently supported. While potentially limiting,
-this ensures that all relevant token data (`address tokenAddress`, `uint8 tokenItemType`, `uint88 optionalId`) can be stored
+this ensures that all relevant token data (`address tokenAddress`, `uint8 tokenItemType`, `uint88 optionalId`) can be placed
 in a single storage slot. Additional 1155 considerations included whether all NFTs within a collection 
 should be fungible, or just those with the same IDs. Ultimately, the former felt more intuitive.
 
@@ -32,7 +32,7 @@ A `triswapPair` can be any combination of two `tokenItemType`s
 
 1) Obviously heavily inspired by [Uniswap V2](https://github.com/Uniswap/v2-core)
 
-2) Small techincal decisions also based off of [Seaport](https://github.com/ProjectOpenSea/seaport) 
+2) Some techincal decisions inspired by [Seaport](https://github.com/ProjectOpenSea/seaport) 
 and [Sudoswap](https://github.com/sudoswap/lssvm), leading players in advancing the NFT trading space
 
 3) Built with [Foundry](https://github.com/foundry-rs/foundry)
@@ -47,9 +47,9 @@ quantity and pricing would be determined entirely on market demand.
 ## Next steps + future changes
 
 This is a very preliminary first implementation, and more of a thought experiment than
-finished protocol
+a finished protocol
 
-First, NFT-NFT swaps are currently "possible" but there is very little reason
+First, `ERC721` to `ERC721` swaps are currently possible, but there is very little reason
 for these to be used as currently implemented, unless the quantity of each pair
 is sufficiently high. This has to do with minimum liquidity requirements and
 potential rounding issues
