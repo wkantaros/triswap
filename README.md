@@ -57,6 +57,8 @@ a finished protocol
 
 While `ERC721` to `ERC721` swaps are possible, there is very little reason to use them
 as currently implemented, due to minimum liquidity requirements and potential rounding issues.
+Considering (?) adjusting minliqudity based off of pair type, although suspect a more formal solution
+is needed
 
 More advanced LPing and trading characteristics for smaller collections, ability to select
 721s (maybe), need to be implemented
